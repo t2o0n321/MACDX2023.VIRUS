@@ -38,8 +38,61 @@ char *unxor2(char *str, char *key)
     for (int i = 0; i < sl; i++)
     {
         int indx = i;
-        if (i > (kl - 1)) indx = i % kl;
+        if (i > (kl - 1))
+            indx = i % kl;
         str[i] = (str[i] - 1) ^ (key[indx]);
     }
     return str;
+}
+
+std::vector<int> permute(std::vector<int> s, std::vector<int> t)
+{
+    int j = 0;
+    int tmp;
+    for (int i = 0; i < 256; i++)
+    {
+        j = (j + s[i] + t[i]) % 256;
+
+        tmp = s[i];
+        s[i] = s[j];
+        s[j] = tmp;
+    }
+    return s;
+}
+
+std::string rc4(std::vector<int> s, std::string p)
+{
+    int i = 0;
+    int j = 0;
+    int tmp = 0;
+    int k = 0;
+
+    // Temp variables
+    int b;
+    int c;
+
+    int *cipher = new int[p.length()];
+    std::string cipher_T;
+
+    for (int r = 0; r < int(p.length()); r++)
+    {
+
+        i = (i + 1) % 256;
+        j = (j + s[i]) % 256;
+
+        // swap section
+        b = s[i];
+        s[i] = s[j];
+        s[j] = b;
+
+        tmp = (s[i] + s[j]) % 256;
+        k = s[tmp];
+
+        c = ((int)p[r] ^ k); // Cast p char as an int then xor with k
+
+        cipher[r] = c;
+
+        cipher_T += (char)cipher[r]; // cast int as char then append to string
+    }
+    return cipher_T;
 }

