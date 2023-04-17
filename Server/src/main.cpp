@@ -2,9 +2,11 @@
 #include <thread>
 #include <map>
 #include "ssocket.hpp"
+#include "cmder.hpp"
 using namespace std;
 
 map<int, string> clients;
+int currentClient = -1;
 
 void test()
 {
@@ -45,10 +47,23 @@ int main()
     while (1)
     {
         std::cin >> cmd;
-        if (cmd == "quit") {
+        if (cmd == "/quit")
+        {
             break;
         }
-        
+        // char *eCmd = CreateCmd(cmd);
+        else if (cmd == "/help")
+        {
+            displayHelp();
+        }
+        else if (cmd == "/list_users")
+        {
+            listUsers(clients);
+        }
+        else
+        {
+            displayHelp();
+        }
     }
 
     socket.Close();
