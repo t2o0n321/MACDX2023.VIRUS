@@ -68,6 +68,7 @@
     ```
 
 # Server
+我真的懶的規劃再寫了，所以 Code 很混亂，請見諒 哈哈
 ## 介紹
 Linux-based 的簡單 C2 Server，可以監聽連線，功能如下: </br>
 - 下載 Client 端做的 KeyLog

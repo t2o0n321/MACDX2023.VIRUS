@@ -31,7 +31,7 @@ void listUsers(std::map<int, std::string> clientDatas)
     }
     for (it = clientDatas.begin(); it != clientDatas.end(); it++)
     {
-        std::cout << "[ " << it->first << " ]"
+        std::cout << "[" << it->first << "]"
                   << ": "
                   << it->second
                   << std::endl;
@@ -43,4 +43,22 @@ char *CreateCmd(std::string Cmd)
     RC4 rc4(INET_KEY);
     char *eCmd = (char *)rc4.encrypt(Cmd).c_str();
     return eCmd;
+}
+
+std::vector<std::string> parseCmds(std::string Cmd)
+{
+    std::vector<std::string> subCmds;
+
+    std::stringstream ss(Cmd);
+    std::string tmp;
+
+    while (ss >> tmp)
+    {
+        subCmds.push_back(tmp);
+        tmp.clear();
+    }
+
+    std::reverse(subCmds.begin(), subCmds.end());
+
+    return subCmds;
 }
