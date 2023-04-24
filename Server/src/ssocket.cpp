@@ -1,6 +1,6 @@
 #include "ssocket.hpp"
 
-MySocket::Socket::Socket(int port)
+MySocket::Socket::Socket(int port) : connectionFailed(true)
 {
     this->Port = port;
 }
@@ -11,9 +11,11 @@ int MySocket::Socket::Init()
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0)
     {
-        std::cerr << "Error creating socket" << std::endl;
+        this->connectionFailed = true;
+        // std::cerr << "Error creating socket" << std::endl;
         return -1;
     }
+    this->connectionFailed = false;
     this->socket_fd = sock_fd;
     return sock_fd;
 }
@@ -33,17 +35,21 @@ bool MySocket::Socket::Listen(SERVERFP toDo)
     int bindResult = bind(this->socket_fd, (sockaddr *)&addr, sizeof(addr));
     if (bindResult < 0)
     {
-        std::cerr << "Failed to bind socket" << std::endl;
+        this->connectionFailed = true;
+        // std::cerr << "Failed to bind socket" << std::endl;
         return false;
     }
 
+    this->connectionFailed = false;
     // Listen for incomming connections
     int listenResult = listen(this->socket_fd, SOMAXCONN);
     if (listenResult < 0)
     {
+        this->connectionFailed = true;
         std::cerr << "Failed to listen" << std::endl;
         return false;
     }
+    this->connectionFailed = false;
 
     std::cout << "Listening on port " << this->Port << std::endl;
     return true;
@@ -61,16 +67,24 @@ std::pair<int, sockaddr_in> MySocket::Socket::Accept()
 
     if ((client_sock_fd = accept(this->socket_fd, (sockaddr *)&cAddr, &client_sock_len)) < 0)
     {
-        std::cerr << "Failed to accept to client" << std::endl;
+        this->connectionFailed = true;
+        // std::cerr << "Failed to accept to client" << std::endl;
+        close(client_sock_fd);
         result = std::make_pair(-1, cAddr);
         return result;
     }
 
+    this->connectionFailed = false;
     result = std::make_pair(client_sock_fd, cAddr);
     // char buffer[MAX_CLIENT_BUFFER_SIZE] = {0};
     // int bytes_read = read(client_sock_fd, buffer, sizeof(buffer));
 
     return result;
+}
+
+bool MySocket::Socket::isNotConnected()
+{
+    return this->connectionFailed;
 }
 
 void MySocket::Socket::Close()

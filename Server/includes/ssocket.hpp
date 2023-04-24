@@ -4,7 +4,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
+
+#ifndef _KEYWORDS_HPP_
+#define _KEYWORDS_HPP_
 #include "keywords.hpp"
+#endif
 
 namespace MySocket
 {
@@ -13,6 +17,7 @@ namespace MySocket
     private:
         int Port;
         int socket_fd;
+        bool connectionFailed;
 
     public:
         Socket(int port);
@@ -25,6 +30,7 @@ namespace MySocket
          * Return client socket fd number and client data
          */
         std::pair<int, sockaddr_in> Accept();
+        bool isNotConnected();
         void Close();
     };
 }
