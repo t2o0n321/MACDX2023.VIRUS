@@ -2,8 +2,16 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <Windows.h>
+
+#ifndef _TOOLSKIT_HPP_
+#define _TOOLSKIT_HPP_
 #include "toolskit.hpp"
+#endif
+
+#ifndef _CSOCKET_HPP_
+#define _CSOCKET_HPP_
 #include "csocket.hpp"
+#endif
 
 #pragma comment(lib, "WS2_32.lib")
 

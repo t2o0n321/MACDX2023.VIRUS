@@ -1,5 +1,9 @@
 #include <iostream>
+
+#ifndef _TOOLSKIT_HPP_
+#define _TOOLSKIT_HPP_
 #include "toolskit.hpp"
+#endif
 
 /**
  * Is the program in development mode

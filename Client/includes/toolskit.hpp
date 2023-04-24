@@ -2,7 +2,11 @@
 #include <Windows.h>
 #include <ctime>
 #include <fstream>
+
+#ifndef _CIPHER_HPP_
+#define _CIPHER_HPP_
 #include "cipher.hpp"
+#endif
 
 // Save Log
 /**
