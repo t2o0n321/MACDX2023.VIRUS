@@ -12,11 +12,6 @@
 #include "keywords.hpp"
 #endif
 
-#ifndef _CMDER_HPP_
-#define _CMDER_HPP_
-#include "cmder.hpp"
-#endif
-
 namespace csocket
 {
     class Socket
@@ -40,7 +35,7 @@ namespace csocket
          */
         SOCKET Init();
         int Connect();
-        int Recv();
+        std::string Recv();
         int Send();
         bool isNotConnected();
         void Close();

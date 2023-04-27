@@ -178,6 +178,7 @@ int main()
                     sysCmd += " " + Cmds.back();
                     Cmds.pop_back();
                 }
+
                 system(sysCmd.c_str());
             }
         }

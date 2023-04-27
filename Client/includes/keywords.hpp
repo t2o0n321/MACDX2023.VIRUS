@@ -50,3 +50,13 @@ struct ServerInfo
 #define MAX_RECV_BUF 1073741824 // 1GB
 // lFOYz8gbu9xbhzzFyBAjUmwlorSypF
 static char INET_KEY[] = "\x6c\x47\x4d\x5a\x7e\x3d\x61\x65\x7d\x30\x72\x69\x64\x77\x74\x49\x69\x53\x53\x79\x41\x78\x61\x7b\x77\x6b\x49\x62\x6c\x5b";
+
+/**
+ * Command States
+*/
+typedef std::string RECVDATA;
+enum CMDSTATE {
+    NOTCMD = -1,
+    CUSTCMD = 0, 
+    SYSCMD = 1
+};

@@ -13,6 +13,7 @@ class xRC4
 {
 public:
     xRC4(std::string key);
+    std::string decrypt(std::string p);
     std::string encrypt(std::string p);
 
 private:

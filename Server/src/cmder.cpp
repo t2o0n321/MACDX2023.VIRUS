@@ -46,7 +46,7 @@ void listUsers(std::map<int, std::string> clientDatas)
 char *CreateCmd(std::string Cmd)
 {
     RC4 rc4(INET_KEY);
-    char *eCmd = (char *)rc4.encrypt(Cmd).c_str();
+    char *eCmd = (char *)rc4.decrypt(Cmd).c_str();
     return eCmd;
 }
 

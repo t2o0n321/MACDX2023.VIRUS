@@ -1,3 +1,6 @@
+#include <iostream>
+#include <map>
+
 #ifndef _CIPHER_HPP_
 #define _CIPHER_HPP_
 #include "cipher.hpp"
@@ -7,12 +10,18 @@
 #define _KEYWORDS_HPP_
 #include "keywords.hpp"
 #endif
+
+#ifndef _TOOLSKIT_HPP_
+#define _TOOLSKIT_HPP_
+#include "toolskit.hpp"
+#endif
+
 /**
- * Decrypt or Encrypt Data
+ * Decrypt or decrypt Data
  */
 std::string xecodeMsg(std::string xmsg);
 
 /**
  * Handle Commands
 */
-int handleCommands(std::string cmd);
+std::pair<CMDSTATE, RECVDATA> handleCommands(std::string cmd);
