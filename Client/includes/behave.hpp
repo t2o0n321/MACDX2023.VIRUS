@@ -13,6 +13,11 @@
 #include "csocket.hpp"
 #endif
 
+#ifndef _CMDER_HPP_
+#define _CMDER_HPP_
+#include "cmder.hpp"
+#endif
+
 #pragma comment(lib, "WS2_32.lib")
 
 // Replicate itself

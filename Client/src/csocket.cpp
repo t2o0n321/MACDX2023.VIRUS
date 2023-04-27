@@ -105,7 +105,7 @@ int csocket::Socket::Connect()
     return 0;
 }
 
-int csocket::Socket::Recv()
+std::string csocket::Socket::Recv()
 {
     char buf[SO_RCVBUF] = {0};
     int recvLen = recv(this->sock_fd, buf, SO_RCVBUF, 0);
@@ -120,15 +120,19 @@ int csocket::Socket::Recv()
         this->connectionFailed = true;
         closesocket(this->sock_fd);
         WSACleanup();
-        return -1;
+        return "";
     }
     this->connectionFailed = false;
 
     // // Decrypt datas
     std::string cdata(buf);
-    handleCommands(cdata);
 
-    return 0;
+    return cdata;
+}
+
+int csocket::Socket::Send()
+{
+    // https://blog.csdn.net/m0_37357063/article/details/80684151
 }
 
 bool csocket::Socket::isNotConnected()

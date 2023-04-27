@@ -27,7 +27,7 @@ std::vector<int> RC4::permute()
     return s;
 }
 
-std::string RC4::encrypt(std::string p)
+std::string RC4::decrypt(std::string p)
 {
     std::vector<int> s = this->permute();
     int i = 0;

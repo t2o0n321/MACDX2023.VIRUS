@@ -141,7 +141,7 @@ int main()
                 cout << "Sending: " << toSend << endl;
 
                 RC4 r(INET_KEY);
-                toSend = r.encrypt(toSend);
+                toSend = r.decrypt(toSend);
 
                 int res = send(currentClient, toSend.c_str(), toSend.size(), 0);
             }
