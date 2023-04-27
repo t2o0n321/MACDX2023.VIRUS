@@ -7,3 +7,7 @@ static std::string INET_KEY = "lFOYz8gbu9xbhzzFyBAjUmwlorSypF";
 
 typedef void (*SERVERFP)();
 typedef void (*CLIENTFP)(std::string cmd);
+
+typedef std::string XDATA;
+
+#define SOCKET_ERROR -1

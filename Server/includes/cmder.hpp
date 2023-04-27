@@ -2,7 +2,12 @@
 #include <map>
 #include <algorithm>
 #include <sstream>
+
+#ifndef _CIPHER_HPP_
+#define _CIPHER_HPP_
 #include "cipher.hpp"
+#endif
+
 #include "keywords.hpp"
 
 // /help

@@ -7,6 +7,7 @@ class RC4
 public:
     RC4(std::string key);
     std::string encrypt(std::string p);
+    std::string decrypt(std::string p);
 
 private:
     std::vector<int> permute();

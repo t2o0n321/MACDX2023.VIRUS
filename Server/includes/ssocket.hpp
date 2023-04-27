@@ -2,8 +2,14 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include <map>
 #include <unistd.h>
 #include <cstring>
+
+#ifndef _CIPHER_HPP_
+#define _CIPHER_HPP_
+#include "cipher.hpp"
+#endif
 
 #ifndef _KEYWORDS_HPP_
 #define _KEYWORDS_HPP_
@@ -31,6 +37,9 @@ namespace MySocket
          */
         std::pair<int, sockaddr_in> Accept();
         bool isNotConnected();
+        int Send(int clientFd, XDATA data);
         void Close();
     };
 }
+
+void checkConnection(std::map<int, std::string> &clientDatas);
