@@ -36,7 +36,7 @@ namespace csocket
         SOCKET Init();
         int Connect();
         std::string Recv();
-        int Send();
+        int Send(const char* data);
         bool isNotConnected();
         void Close();
     };

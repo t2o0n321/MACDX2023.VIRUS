@@ -69,7 +69,8 @@
         "semaphore": "cpp",
         "stop_token": "cpp",
         "string_view": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "array": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

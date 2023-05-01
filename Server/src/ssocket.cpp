@@ -87,7 +87,78 @@ bool MySocket::Socket::isNotConnected()
     return this->connectionFailed;
 }
 
+int MySocket::Socket::Send(int clientFd, XDATA data)
+{
+    RC4 r(INET_KEY);
+    std::string toSend = r.encrypt(data);
+    int res;
+    try
+    {
+        res = send(clientFd, toSend.c_str(), toSend.size(), 0);
+    }
+    catch (...)
+    {
+        res = -1;
+    }
+    return res;
+}
+
 void MySocket::Socket::Close()
 {
     close(this->socket_fd);
+}
+
+std::string MySocket::Socket::Recv(int clientFd)
+{
+    char buf[10000];
+    int res = recv(clientFd, buf, sizeof(buf), 0);
+    if (res == SOCKET_ERROR || res == 0)
+    {
+        std::cout << "Failed to receive from client " << clientFd << std::endl;
+        return "";
+    }
+    std::string data(buf);
+    return data;
+}
+
+void checkConnection(std::map<int, std::string> &clientDatas)
+{
+    std::map<int, std::string>::iterator it;
+    if (clientDatas.empty())
+        return;
+
+    char buf[4096];
+
+    for (it = clientDatas.begin(); it != clientDatas.end();)
+    {
+        memset(buf, 0, sizeof(buf));
+
+        // std::cout << it->first << std::endl;
+        int recvRes = recv(it->first, buf, sizeof(buf), MSG_PEEK);
+        // std::cout << recvRes << std::endl;
+        if (recvRes == 0)
+        {
+            close(it->first);
+            it = clientDatas.erase(it);
+        }
+        // Socket not ready for reading
+        else if (recvRes == SOCKET_ERROR && errno == EAGAIN)
+        {
+            // std::cout << "Socket not ready for reading" << std::endl;
+            close(it->first);
+            it = clientDatas.erase(it);
+        }
+        // Error in recv from client
+        else if (recvRes == SOCKET_ERROR)
+        {
+            // std::cout << "Error in recv from client" << std::endl;
+            close(it->first);
+            it = clientDatas.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    return;
 }

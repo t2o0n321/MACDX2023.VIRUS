@@ -19,7 +19,8 @@
 /**
  * Decrypt or decrypt Data
  */
-std::string xecodeMsg(std::string xmsg);
+std::string decryptMsg(std::string xmsg);
+std::string encryptMsg(std::string xmsg);
 
 /**
  * Handle Commands

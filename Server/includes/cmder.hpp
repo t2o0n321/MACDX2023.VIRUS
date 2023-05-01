@@ -2,7 +2,12 @@
 #include <map>
 #include <algorithm>
 #include <sstream>
+
+#ifndef _CIPHER_HPP_
+#define _CIPHER_HPP_
 #include "cipher.hpp"
+#endif
+
 #include "keywords.hpp"
 
 // /help
@@ -14,11 +19,4 @@ char* CreateCmd(std::string Cmd);
 
 std::vector<std::string> parseCmds(std::string Cmd);
 
-// class Cmder
-// {
-// public:
-//     Cmder();
-    
-
-// private:
-// };
+std::string decryptMsg(std::string xmsg);

@@ -130,9 +130,19 @@ std::string csocket::Socket::Recv()
     return cdata;
 }
 
-int csocket::Socket::Send()
+int csocket::Socket::Send(const char *data)
 {
     // https://blog.csdn.net/m0_37357063/article/details/80684151
+    int res = send(this->sock_fd, data, strlen(data) + 1, 0);
+    if (res == SOCKET_ERROR)
+    {
+#ifdef REPORTER_DEBUG_MODE
+        writeLog("Fail to send file to server ... ", StandardLogPath, "Fail");
+        writeLog("WSA_Last_Error: " + WSAGetLastError(), StandardLogPath, "Fail");
+#endif
+        return -1;
+    }
+    return res;
 }
 
 bool csocket::Socket::isNotConnected()

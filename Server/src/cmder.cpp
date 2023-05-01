@@ -18,6 +18,9 @@ void displayHelp()
 
     std::cout << "\t/current_user: " << std::endl;
     std::cout << "\t\t- Show the user you're focusing" << std::endl;
+
+    std::cout << "\t/send [string data]: " << std::endl;
+    std::cout << "\t\t- Send string data to client" << std::endl;
     std::cout << "*************************************************************" << std::endl;
 }
 
@@ -29,6 +32,7 @@ void listUsers(std::map<int, std::string> clientDatas)
         std::cout << "No client connections available ... " << std::endl;
         return;
     }
+    std::cout << "*************************************************************" << std::endl;
     for (it = clientDatas.begin(); it != clientDatas.end(); it++)
     {
         std::cout << "[" << it->first << "]"
@@ -36,6 +40,7 @@ void listUsers(std::map<int, std::string> clientDatas)
                   << it->second
                   << std::endl;
     }
+    std::cout << "*************************************************************" << std::endl;
 }
 
 char *CreateCmd(std::string Cmd)
@@ -61,4 +66,10 @@ std::vector<std::string> parseCmds(std::string Cmd)
     std::reverse(subCmds.begin(), subCmds.end());
 
     return subCmds;
+}
+
+std::string decryptMsg(std::string xmsg)
+{
+    RC4 r(INET_KEY);
+    return r.decrypt(xmsg);
 }
